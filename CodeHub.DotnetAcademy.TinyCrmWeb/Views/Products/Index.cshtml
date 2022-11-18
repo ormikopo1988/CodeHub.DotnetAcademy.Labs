@@ -1,0 +1,113 @@
+﻿@model IEnumerable<CodeHub.DotnetAcademy.TinyCrmWeb.Entities.Product>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="products">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a href="javascript:void(0)" onclick="deleteProduct(@item.Id)">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+    {
+    <script>
+        const uri = 'Products';
+        function getProducts() {
+            fetch(`${uri}/Get`)
+                .then(response => response.json())
+                .then(data => _displayProducts(data))
+                .catch(error => console.error('Unable to get products.', error));
+        }
+        function deleteProduct(id) {
+            fetch(`${uri}/Delete/${id}`, {
+                method: 'DELETE'
+            })
+                .then(() => getProducts())
+                .catch(error => console.error('Unable to delete product.', error));
+        }
+        function _displayProducts(data) {
+            const tBody = document.getElementById('products');
+            tBody.innerHTML = '';
+            const anchorElement = document.createElement('a');
+            data.forEach(item => {
+                let detailsAnchor = anchorElement.cloneNode(false);
+                detailsAnchor.innerText = 'Details';
+                detailsAnchor.setAttribute('href', `${uri}/Details/${item.id}`);
+                let deleteAnchor = anchorElement.cloneNode(false);
+                deleteAnchor.innerText = 'Delete';
+                deleteAnchor.setAttribute('onclick', `deleteProduct(${item.id})`);
+                deleteAnchor.setAttribute('href', 'javascript:void(0)');
+                let tr = tBody.insertRow();
+                let td1 = tr.insertCell(0);
+                let codeNode = document.createTextNode(item.code);
+                td1.appendChild(codeNode);
+                let td2 = tr.insertCell(1);
+                let nameNode = document.createTextNode(item.name);
+                td2.appendChild(nameNode);
+                let td3 = tr.insertCell(2);
+                let descNode = document.createTextNode(item.description);
+                td3.appendChild(descNode);
+                let td4 = tr.insertCell(3);
+                let priceNode = document.createTextNode(item.price);
+                td4.appendChild(priceNode);
+                let td5 = tr.insertCell(4);
+                let quantityNode = document.createTextNode(item.quantity);
+                td5.appendChild(quantityNode);
+                let td6 = tr.insertCell(5);
+                td6.appendChild(detailsAnchor);
+                let td7 = tr.insertCell(6);
+                td7.appendChild(deleteAnchor);
+            });
+        }
+    </script>
+}

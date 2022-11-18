@@ -1,0 +1,105 @@
+﻿@model IEnumerable<CodeHub.DotnetAcademy.TinyCrmWeb.Entities.Customer>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VatNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="customers">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VatNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a href="javascript:void(0)" onclick="deleteCustomer(@item.Id)">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+    {
+    <script>
+        const uri = 'Customers';
+
+        function getCustomers() {
+            fetch(`${uri}/Get`)
+                .then(response => response.json())
+                .then(data => _displayCustomers(data))
+                .catch(error => console.error('Unable to get customers.', error));
+        }
+        function deleteCustomer(id) {
+            fetch(`${uri}/Delete/${id}`, {
+                method: 'DELETE'
+            })
+                .then(() => getCustomers())
+                .catch(error => console.error('Unable to delete customer.', error));
+        }
+        function _displayCustomers(data) {
+            const tBody = document.getElementById('customers');
+            tBody.innerHTML = '';
+            const anchorElement = document.createElement('a');
+            data.forEach(item => {
+                let detailsAnchor = anchorElement.cloneNode(false);
+                detailsAnchor.innerText = 'Details';
+                detailsAnchor.setAttribute('href', `${uri}/Details/${item.id}`);
+                let deleteAnchor = anchorElement.cloneNode(false);
+                deleteAnchor.innerText = 'Delete';
+                deleteAnchor.setAttribute('onclick', `deleteCustomer(${item.id})`);
+                deleteAnchor.setAttribute('href', 'javascript:void(0)');
+                let tr = tBody.insertRow();
+                let td1 = tr.insertCell(0);
+                let firstNameNode = document.createTextNode(item.firstName);
+                td1.appendChild(firstNameNode);
+                let td2 = tr.insertCell(1);
+                let lastNameNode = document.createTextNode(item.lastName);
+                td2.appendChild(lastNameNode);
+                let td3 = tr.insertCell(2);
+                let vatNumberNode = document.createTextNode(item.vatNumber);
+                td3.appendChild(vatNumberNode);
+                let td4 = tr.insertCell(3);
+                let addressNode = document.createTextNode(item.address);
+                td4.appendChild(addressNode);
+                let td5 = tr.insertCell(4);
+                td5.appendChild(detailsAnchor);
+                let td6 = tr.insertCell(5);
+                td6.appendChild(deleteAnchor);
+            });
+        }
+    </script>
+}
